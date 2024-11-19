@@ -1,0 +1,10 @@
+#!/bin/bash
+
+certbot -n certonly --cert-name base -d #IIP_SERVER_NAME# --webroot -w /var/www/acme-docroot/ --agree-tos --email repositories@ulcc.ac.uk 
+# NB below is expecting default --name of base
+# cat the key and crt together as that is how lighttp likes it
+# TODO /etc/ssl/certs will NOT persist which would make this a most temporary solution
+# TODO also this would not do well with replicas (but then none of my cert management does)
+cat /etc/letsencrypt/live/base/privkey.pem /etc/letsencrypt/live/base/fullchain.pem > /etc/ssl/certs/#IIP_SERVER_NAME#.pem
+# below will probably restart the whole pod
+/etc/init.d/lighttpd reload
