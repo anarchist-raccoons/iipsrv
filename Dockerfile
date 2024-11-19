@@ -28,7 +28,7 @@ RUN set -ex \
         libjpeg-dev \
         libmemcached-dev \
         libopenjp2-7-dev \
-        libtiff-dev
+        libtiff-dev 
 
 WORKDIR /usr/local/src/iipsrv
 
@@ -58,15 +58,23 @@ RUN set -ex \
         libopenjp2-7 \
         libtiff5 \
         lighttpd \
+        vim \
+        openssl \
+        certbot \
+        cron \
+        procps \
     && mkdir -p /var/run/lighttpd \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 COPY docker-files/lighttpd/lighttpd.conf /etc/lighttpd/lighttpd.conf
+COPY docker-files/lighttpd/lighttpd_ssl.conf /etc/lighttpd/lighttpd_ssl.conf
 
-CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]
+COPY docker-files/renew_cert /var/tmp/renew_cert
+COPY docker-files/gen_cert.sh /bin/gen_cert.sh
 
-EXPOSE 80
+COPY docker-files/docker-entrypoint-iip.sh /bin/
+RUN chmod +x /bin/docker-entrypoint-iip.sh
 
 RUN set -ex \
     && ln -sfT /dev/stderr "/var/log/lighttpd/error.log" \
